@@ -30,7 +30,7 @@ def generate_chart(filepath: str, output_dir: str = CHART_DIR) -> str:
     ax.legend()
     fig.tight_layout()
 
-    out_path = os.path.join(output_dir, f"chart_{uuid.uuid4().hex[:8]}.png")
+    out_path = os.path.abspath(os.path.join(output_dir, f"chart_{uuid.uuid4().hex[:8]}.png"))
     fig.savefig(out_path)
     plt.close(fig)
     return out_path
