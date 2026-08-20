@@ -12,7 +12,13 @@ USER PREFERENCES:
 {preferences}
 
 QUESTION:
-{question}"""
+{question}
+
+Respond in exactly this format:
+ANSWER: <your answer, citing specific numbers from the data>
+CONFIDENCE: <0-100, how confident you are the answer is fully grounded in the data above>
+GROUNDED: YES or NO
+SOURCE ROWS: <comma-separated labels/rows the answer is based on>"""
 
 
 def run_research(filepath: str, question: str, preferences: list[str] | None = None) -> str:

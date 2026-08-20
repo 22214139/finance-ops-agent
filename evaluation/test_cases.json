@@ -41,5 +41,12 @@
     "filepath": "data/sample_report.csv",
     "expected_agent": "research",
     "expected_keywords": []
+  },
+  {
+    "id": "TC007",
+    "input": "What if we reduce expenses by 10% in March?",
+    "filepath": "data/sample_report.csv",
+    "expected_agent": "simulation",
+    "expected_keywords": ["March", "profit"]
   }
 ]

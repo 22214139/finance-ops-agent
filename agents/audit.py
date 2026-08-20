@@ -18,7 +18,13 @@ USER PREFERENCES:
 QUESTION:
 {question}
 
-Be specific: name the row/column and the deviation. If no anomalies were found, say so plainly."""
+Be specific: name the row/column and the deviation. If no anomalies were found, say so plainly.
+
+Respond in exactly this format:
+ANSWER: <your explanation>
+CONFIDENCE: <0-100, how confident you are the answer is fully grounded in the anomaly findings above>
+GROUNDED: YES or NO
+SOURCE ROWS: <comma-separated labels/rows the answer is based on, or "none" if no anomalies>"""
 
 
 def detect_anomalies(df: pd.DataFrame, std_threshold: float = ANOMALY_STD_THRESHOLD) -> list[str]:
