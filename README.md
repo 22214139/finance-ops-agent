@@ -89,8 +89,7 @@ ops-agent-capstone/
 ├── docs/screenshots/
 ├── main.py                 # entry point, launches the UI
 ├── requirements.txt
-├── .env.example
-└── agent.py                 # original single-notebook Kaggle submission (superseded by the above)
+└── .env.example
 ```
 
 ## How to Run
@@ -169,4 +168,3 @@ Note: TC001, TC003, TC004, TC006, TC007 call the live Gemini API, so wording can
 - The free Gemini API tier has a low requests-per-minute limit; rapid-fire testing (e.g. re-running the scorecard immediately after manual testing) can trigger transient 429s. `core/llm_client.py` retries with backoff, and the scorecard paces its own calls, but very heavy concurrent use can still hit the ceiling.
 - Session state (used for contradiction checks and the session summary) lives in memory in the running Python process — it resets on app restart and isn't shared across multiple browser tabs. Click "New Session" to clear it manually mid-run.
 - The auditor and contradiction checks add extra live LLM calls per question (one for the auditor, up to three more for contradiction lookback), which adds latency and increases free-tier rate-limit exposure.
-- `agent.py` at the repo root is the original single-notebook Kaggle submission. It still works standalone in a Kaggle notebook but is no longer part of this pipeline.
