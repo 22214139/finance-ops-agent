@@ -6,7 +6,7 @@ of an LLM prompt.
 """
 import pandas as pd
 
-from agents.audit import ANOMALY_STD_THRESHOLD
+from agents.anomaly_detection import ANOMALY_STD_THRESHOLD
 from tools.csv_reader import load_dataframe
 
 

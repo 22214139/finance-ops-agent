@@ -4,3 +4,5 @@ __pycache__/
 .venv/
 memory.json
 data/charts/
+data/self_learning.json
+data/history/*.csv

@@ -3,7 +3,7 @@
     "id": "TC001",
     "input": "Which month had the highest profit?",
     "filepath": "data/sample_report.csv",
-    "expected_agent": "research",
+    "expected_agent": "trend_analysis",
     "expected_keywords": ["June", "89"],
     "must_not_contain": ["pizza"]
   },
@@ -18,14 +18,14 @@
     "id": "TC003",
     "input": "Are there any unusual revenue spikes in this report?",
     "filepath": "data/sample_report.csv",
-    "expected_agent": "audit",
+    "expected_agent": "anomaly_detection",
     "expected_keywords": ["June", "120"]
   },
   {
     "id": "TC004",
     "input": "Generate a purchase order for 10 laptops from Dell at $1200 each.",
     "filepath": null,
-    "expected_agent": "procurement",
+    "expected_agent": "cost_analysis",
     "expected_keywords": ["PO Number", "Dell"]
   },
   {
@@ -39,7 +39,7 @@
     "id": "TC006",
     "input": "What's the overall expense trend across the months?",
     "filepath": "data/sample_report.csv",
-    "expected_agent": "research",
+    "expected_agent": "trend_analysis",
     "expected_keywords": []
   },
   {

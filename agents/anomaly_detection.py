@@ -1,4 +1,4 @@
-"""Audit agent: flags statistical anomalies in a report and explains them."""
+"""Anomaly detection agent: flags statistical anomalies in a report and explains them."""
 import pandas as pd
 
 from core.llm_client import generate
@@ -6,7 +6,7 @@ from tools.csv_reader import load_dataframe
 
 ANOMALY_STD_THRESHOLD = 2.0
 
-AUDIT_PROMPT = """You are a financial audit agent. Review the anomaly findings below
+ANOMALY_PROMPT = """You are a financial anomaly detection agent. Review the anomaly findings below
 and the user's question, then explain what looks unusual and why it matters.
 
 ANOMALIES FOUND:
@@ -46,11 +46,11 @@ def detect_anomalies(df: pd.DataFrame, std_threshold: float = ANOMALY_STD_THRESH
     return findings
 
 
-def run_audit(filepath: str, question: str, preferences: list[str] | None = None) -> str:
+def run_anomaly_detection(filepath: str, question: str, preferences: list[str] | None = None) -> str:
     df = load_dataframe(filepath)
     anomalies = detect_anomalies(df)
     anomalies_text = "\n".join(anomalies) if anomalies else "No anomalies found above threshold."
-    prompt = AUDIT_PROMPT.format(
+    prompt = ANOMALY_PROMPT.format(
         anomalies=anomalies_text,
         preferences="\n".join(preferences) if preferences else "None",
         question=question,

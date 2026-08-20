@@ -1,9 +1,9 @@
-"""Procurement agent: generates a validated, standard-format purchase order."""
+"""Cost analysis agent: expense/vendor review and purchase order drafting."""
 from dataclasses import dataclass
 
 from core.llm_client import generate
 
-PO_PROMPT = """You are a procurement agent. Draft a purchase order from the request below.
+PO_PROMPT = """You are a cost analysis agent. Draft a purchase order from the request below.
 
 REQUEST:
 {question}
@@ -31,7 +31,7 @@ def validate_po_request(question: str) -> POValidationResult:
     return POValidationResult(True, "ok")
 
 
-def run_procurement(question: str, preferences: list[str] | None = None) -> str:
+def run_cost_analysis(question: str, preferences: list[str] | None = None) -> str:
     validation = validate_po_request(question)
     if not validation.ok:
         return validation.reason

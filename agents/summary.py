@@ -3,7 +3,7 @@ Counts and pass/fail rates are computed directly from logged entries, not guesse
 """
 from core.session import Session
 
-ANSWERED_LABELS = ("research", "audit", "simulation")
+ANSWERED_LABELS = ("trend_analysis", "anomaly_detection", "simulation")
 
 
 def _answer_line(text: str) -> str:

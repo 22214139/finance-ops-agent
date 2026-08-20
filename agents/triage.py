@@ -1,12 +1,12 @@
 """Triage agent: classifies a user's finance question and routes it to one agent."""
 from core.llm_client import generate
 
-CATEGORIES = ["audit", "research", "procurement", "visualization", "simulation"]
+CATEGORIES = ["anomaly_detection", "trend_analysis", "cost_analysis", "visualization", "simulation"]
 
 TRIAGE_PROMPT = """Classify this finance question into exactly one category:
-- audit: invoice validation, anomaly detection
-- research: trend analysis, performance comparison, answering "which/what/how much" questions with numbers or explanation
-- procurement: purchase orders, vendor management
+- anomaly_detection: errors, irregularities, invoice validation, unusual/unexpected values
+- trend_analysis: comparing months, best/worst month, profit patterns, performance over time
+- cost_analysis: expenses, vendors, purchase orders, cost reduction
 - visualization: ONLY when the user explicitly asks to see a chart, graph, plot, or picture
 - simulation: ONLY hypothetical "what if" questions proposing a change (e.g. "what if we reduce
   expenses by 10% in March", "what if revenue grew 5%") and asking for the projected effect
@@ -17,7 +17,7 @@ one, is NOT visualization — classify it by what it's actually asking for inste
 
 Choose simulation only if the question proposes a hypothetical change and asks what would
 happen. A question that merely asks about the existing trend, without proposing a change, is
-research instead.
+trend_analysis instead.
 
 Question: {question}
 
@@ -30,4 +30,4 @@ def triage(question: str) -> str:
     for category in CATEGORIES:
         if category in label:
             return category
-    return "research"
+    return "trend_analysis"

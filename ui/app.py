@@ -1,10 +1,12 @@
 """Gradio UI for the Finance Ops Intelligence Network."""
 import gradio as gr
 
+from agents.proactive_alert import run_proactive_analysis
 from agents.summary import generate_session_summary
 from core.memory import Memory
 from core.router import run_pipeline
 from core.session import Session
+from sandbox.safe_executor import safe_execute
 from tools.anomaly_alert import check_on_upload
 
 _memory = Memory()
@@ -13,13 +15,39 @@ _session = Session()
 
 def run_pipeline_ui(csv_file, question):
     result = run_pipeline(question, filepath=csv_file, memory=_memory, session=_session)
-    return result.agent, result.answer, result.chart_path, result.trajectory.summary()
+    return (
+        result.agent,
+        result.answer,
+        result.chart_path,
+        result.trajectory.summary(),
+        result.performance_report,
+    )
+
+
+def _format_cfo_briefing(proactive: dict) -> str:
+    text = proactive["cfo_summary"]
+    if proactive.get("alert"):
+        text = f"RISK ALERT: {proactive['alert']}\n\n{text}"
+    if proactive.get("predictions"):
+        pred_lines = "\n".join(f"  {k}: {v:,.0f}" for k, v in proactive["predictions"].items())
+        text += f"\n\nPredicted next period:\n{pred_lines}"
+    if proactive.get("anomalies"):
+        anomaly_lines = "\n".join(f"  - {a}" for a in proactive["anomalies"])
+        text += f"\n\nAnomalies:\n{anomaly_lines}"
+    return text
 
 
 def check_on_upload_ui(csv_file):
     alert = check_on_upload(csv_file)
     _session.log(question="[CSV upload]", agent="anomaly_alert", answer=alert)
-    return alert
+
+    proactive_result = safe_execute(run_proactive_analysis, csv_file, _memory, timeout=60)
+    if proactive_result.success:
+        cfo_text = _format_cfo_briefing(proactive_result.output)
+    else:
+        cfo_text = f"CFO briefing failed: {proactive_result.error}"
+
+    return alert, cfo_text
 
 
 def new_session_ui():
@@ -34,6 +62,7 @@ def session_summary_ui():
 NAVY = "#0f2d52"
 TEAL = "#0e7c7b"
 PURPLE = "#6d4aa8"
+AMBER = "#a8710f"
 
 THEME = gr.themes.Soft(
     primary_hue="teal",
@@ -71,7 +100,9 @@ CUSTOM_CSS = f"""
     margin-bottom: 1.25rem;
     box-shadow: 0 2px 12px rgba(15, 23, 42, 0.07);
     border-left: 4px solid {NAVY};
+    border: 1px solid rgba(15, 23, 42, 0.06);
 }}
+.section-card-cfo {{ border-left-color: {AMBER}; }}
 .section-card-result {{ border-left-color: {TEAL}; }}
 .section-card-session {{ border-left-color: {PURPLE}; }}
 
@@ -97,6 +128,7 @@ CUSTOM_CSS = f"""
     font-weight: 700;
     flex-shrink: 0;
 }}
+.section-card-cfo .section-title .badge {{ background: {AMBER}; }}
 .section-card-result .section-title .badge {{ background: {TEAL}; }}
 .section-card-session .section-title .badge {{ background: {PURPLE}; }}
 
@@ -112,8 +144,6 @@ CUSTOM_CSS = f"""
     transform: translateY(-1px);
     box-shadow: 0 6px 18px rgba(14, 124, 123, 0.45) !important;
 }}
-
-.gr-group, .section-card {{ border: 1px solid rgba(15, 23, 42, 0.06); }}
 """
 
 
@@ -140,8 +170,12 @@ with gr.Blocks(title="Finance Ops AI") as demo:
                 )
                 submit = gr.Button("Analyze", variant="primary", size="lg", elem_classes="analyze-btn")
 
+    with gr.Group(elem_classes="section-card section-card-cfo"):
+        gr.Markdown(section_title("2", "CFO Briefing (automatic on upload)"))
+        cfo_briefing = gr.Textbox(lines=8, interactive=False, show_label=False)
+
     with gr.Group(elem_classes="section-card section-card-result"):
-        gr.Markdown(section_title("2", "Result"))
+        gr.Markdown(section_title("3", "Result"))
         with gr.Row(equal_height=True):
             with gr.Column():
                 agent_used = gr.Textbox(label="Agent routed to", interactive=False)
@@ -150,21 +184,24 @@ with gr.Blocks(title="Finance Ops AI") as demo:
                 chart = gr.Image(label="Chart")
 
     with gr.Group(elem_classes="section-card section-card-session"):
-        gr.Markdown(section_title("3", "Session"))
+        gr.Markdown(section_title("4", "Session"))
         with gr.Row():
             summary_btn = gr.Button("Session Summary")
             new_session_btn = gr.Button("New Session", variant="stop")
         session_panel = gr.Textbox(label="Session", lines=6, interactive=False, show_label=False)
 
-    with gr.Accordion("Trajectory audit (step-by-step log)", open=False):
-        trajectory_log = gr.Textbox(label="Steps", lines=10, interactive=False, show_label=False)
+    with gr.Tabs():
+        with gr.Tab("Trajectory Audit"):
+            trajectory_log = gr.Textbox(label="Step-by-step log", lines=10, interactive=False, show_label=False)
+        with gr.Tab("System Learning"):
+            performance_panel = gr.Textbox(label="Performance report", lines=14, interactive=False, show_label=False)
 
-    csv_input.upload(fn=check_on_upload_ui, inputs=[csv_input], outputs=[upload_alert])
+    csv_input.upload(fn=check_on_upload_ui, inputs=[csv_input], outputs=[upload_alert, cfo_briefing])
 
     submit.click(
         fn=run_pipeline_ui,
         inputs=[csv_input, question],
-        outputs=[agent_used, answer, chart, trajectory_log],
+        outputs=[agent_used, answer, chart, trajectory_log, performance_panel],
     )
 
     summary_btn.click(fn=session_summary_ui, outputs=[session_panel])
