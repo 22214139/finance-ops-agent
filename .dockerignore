@@ -1,0 +1,14 @@
+.git
+.github
+.venv
+__pycache__/
+**/__pycache__/
+*.pyc
+.env
+memory.json
+scorecard_memory.json
+data/charts/
+data/history/*.csv
+docs/screenshots
+.pytest_cache
+tests

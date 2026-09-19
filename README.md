@@ -111,6 +111,30 @@ Run the evaluation scorecard directly (as a module, so the `core`/`agents`/`tool
 python -m evaluation.scorecard
 ```
 
+### Docker
+
+```bash
+docker build -t finance-ops-agent .
+docker run -p 7860:7860 --env-file .env finance-ops-agent
+```
+
+The app is then at http://127.0.0.1:7860. `GOOGLE_API_KEY` is read at runtime from
+`--env-file .env` (or `-e GOOGLE_API_KEY=...`) — it's never baked into the image.
+
+### Tests
+
+Unit tests cover the deterministic, non-LLM logic: the validator/PII gate, CSV
+parsing, the pandas-based anomaly detector, memory persistence, and the
+trajectory/session logging. They run offline, with no API key needed.
+
+```bash
+pip install -r requirements-dev.txt
+pytest -v
+```
+
+CI (`.github/workflows/tests.yml`) runs this suite and a Docker build check on every
+push and pull request to `main`.
+
 ## Evaluation Scorecard
 
 Seven test cases exercise the full pipeline against `data/sample_report.csv`, checking routing correctness, keyword grounding, and the security gate:
